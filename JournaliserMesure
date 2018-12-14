@@ -1,0 +1,69 @@
+#!/bin/bash
+
+initMinute=$(date +"%M")
+listeCapteur=$(ls DATA)
+
+while test 1 = 1
+do
+	minute=$(date +"%M")
+	if [ "$minute" != "$initMinute" ]; then
+		premierPassage=false
+		initMinute=$minute
+		date=$(date +"%Y/%m/%d-%H")
+		dateFile=$(date +"%Y%m%d")
+		oldMinute=$(($minute-1))
+		if [ "$oldMinute" -lt 10 ]; then
+			oldMinute=0$oldMinute
+		fi 
+		newListeCapteur=$(ls DATA)
+		if [ "$listeCapteur" != "$newListeCapteur" ]; then
+			premierPassage=true			
+			for newCapteur in $newListeCapteur
+			do
+				capteurExistant=false
+				for capteur in $listeCapteur
+				do
+					if [ "$capteur" = "$newCapteur" ]; then
+						capteurExistant=true
+					fi
+				done
+				if [ "$capteurExistant" = "false" ]; then
+						
+					cd DATA
+					attrib=$(head -7 $newCapteur)
+					cd ../SENSOR
+
+					mkdir $newCapteur
+					cd $newCapteur
+					echo $attrib > $newCapteur.attrib
+
+					touch $dateFile"_"$newCapteur
+					cd ../../DATA
+					mesure=$(grep $date:$oldMinute $newCapteur)
+					cd ../SENSOR/$newCapteur
+					echo $mesure > tmp.txt
+					awk '{print $NF}' tmp.txt >> $dateFile"_"$newCapteur
+					rm tmp.txt	
+					capteurExistant=true
+					cd ../..
+				fi
+			done
+			listeCapteur=$newListeCapteur
+		fi
+		if [ "$listeCapteur" = "$newListeCapteur" ] && [ "$premierPassage" != "true" ]; then
+			for newCapteur in $newListeCapteur
+			do
+				cd DATA			
+				mesure=$(grep $date:$oldMinute $newCapteur)
+		
+				cd ../SENSOR/$newCapteur
+				if [ "$mesure" != "" ]; then
+					echo $mesure > tmp.txt
+					awk '{print $NF}' tmp.txt >> $dateFile"_"$newCapteur
+					rm tmp.txt
+				fi
+				cd ../..
+			done
+		fi
+	fi
+done

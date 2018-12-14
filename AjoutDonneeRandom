@@ -1,0 +1,55 @@
+#!/bin/bash
+read idCapteur
+listeCapteur=$(ls DATA)
+capteurExistant=false
+
+for capteur in $listeCapteur
+do
+	if [ "$idCapteur" = "$capteur" ]; then
+		echo "Entrez nouvelle mesure :"
+		read newMesure
+		newMesureFinal=$(date +"%Y/%m/%d-%T")" "$newMesure
+	
+		echo $newMesureFinal >> DATA/$idCapteur
+		capteurExistant=true
+		break
+	fi
+done
+
+if [ "$capteurExistant" = "false" ]; then
+	echo "Marque :"
+	read marque
+	echo "Modele :"
+	read modele
+	echo "Type de mesure :"
+	read typeMesure
+	echo "Unite :"
+	read unite
+	echo "Intervalle :"
+	read intervalle
+	echo "Position :"
+	read position
+	echo "Mesure :"
+	read mesure
+
+	idFinal="%Id : "$idCapteur
+	marqueFinal="%Marque : "$marque
+	modeleFinal="%Modele : "$modele
+	typeMesureFinal="%Mesure : "$typeMesure
+	uniteFinal="%Unite : "$unite
+	intervalleFinal="%Intervalle :"$intervalle
+	positionFinal="%Position : "$position
+	newMesureFinal=$(date +"%Y/%m/%d-%T")" "$mesure
+
+	cd DATA
+	touch $idCapteur
+	echo $idFinal >> $idCapteur
+	echo $marqueFinal >> $idCapteur
+	echo $modeleFinal >> $idCapteur
+	echo $typeMesureFinal >> $idCapteur
+	echo $uniteFinal >> $idCapteur
+	echo $intervalleFinal >> $idCapteur
+	echo $positionFinal >> $idCapteur
+	echo $newMesureFinal >> $idCapteur
+
+fi
