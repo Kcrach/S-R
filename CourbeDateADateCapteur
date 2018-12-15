@@ -1,0 +1,86 @@
+#!/bin/bash
+
+premiereDate=$1
+deuxiemeDate=$2
+capteur=$3
+
+echo $premiereDate > tmp
+premiereDate=$(tr -d "/" < tmp)
+
+echo $deuxiemeDate > tmp
+deuxiemeDate=$(tr -d "/" < tmp)
+
+rm tmp
+
+premierFichier=$premiereDate"_"$capteur
+deuxiemeFichier=$deuxiemeDate"_"$capteur
+
+cd SENSOR/$capteur
+
+typeDeMesure=$(awk '{print $12}' $capteur.attrib)
+unite=$(awk '{print $15}' $capteur.attrib)
+nomYFinal=$typeDeMesure" "en" "$unite
+listeFilesCapture=$(ls)
+
+cd ../../STAT
+mkdir $capteur
+cd $capteur
+
+premierFichierTrouve=false
+for file in $listeFilesCapture
+do
+	if [ "$file" = "$premierFichier" ]; then
+		premierFichierTrouve=true
+	fi
+	if [ "$premierFichierTrouve" = "true" ]; then
+		cat ../../SENSOR/$capteur/$file >> mesureDaD
+	fi
+	if [ "$file" = "$deuxiemeFichier" ]; then
+		premierFichierTrouve=false
+	fi
+	if [ "$file" = "$capteur.attrib" ]; then
+		premierFichierTrouve=false
+	fi
+done
+
+#On dessine
+#On récupérer le min et le max de notre suite de nombre
+min=100000
+max=0
+mesures=$(cat mesureDaD)
+for mesure in $mesures
+do
+	if [ "$mesure" -le "$min" ]; then
+		min=$mesure
+	fi
+	if [ "$mesure" -ge "$max" ]; then
+		max=$mesure
+	fi
+done
+
+xmin=0
+wc -l mesureDaD > tmpNbLigne
+xmax=$(awk '{print $1}' tmpNbLigne)
+rm tmpNbLigne
+ymin=$min
+ymax=$max
+
+echo "set terminal png size 800,500 enhanced background rgb 'white'" >> gnuplot_script
+echo "set style line 1 lt 1 lw 1.5 pt 3 linecolor rgb '#2b63ff'" >> gnuplot_script
+echo "set output '$premiereDate-$deuxiemeDate-$capteur.png'" >> gnuplot_script
+echo "set xtic auto" >> gnuplot_script
+echo "set ytic auto" >> gnuplot_script
+echo "set title '$1 - $2 ($3)'" >> gnuplot_script
+echo "set ylabel '$nomYFinal'" >> gnuplot_script
+echo "set xlabel 'Mesure'" >> gnuplot_script
+echo "set xr [$xmin:$xmax]" >> gnuplot_script
+echo "set yr [$ymin:$ymax]" >> gnuplot_script
+echo "set nokey" >> gnuplot_script
+echo "plot 'mesureDaD' with linespoints ls 1" >> gnuplot_script
+
+gnuplot gnuplot_script
+
+#On supprime les files temporaires
+rm gnuplot_script
+rm mesureDaD
+

@@ -1,0 +1,29 @@
+#!/bin/bash
+
+capteur=$1
+
+cd ../SENSOR/$capteur
+listeFileMesure=$(ls)
+
+for mesure in $listeFileMesure
+do
+	if [ "$mesure" != "$capteur.attrib" ]; then
+		#On récupère toute les mesures dans un fichier
+		cat $mesure >> totalMesure	
+	fi
+done
+
+totalMesure=$(cat totalMesure)
+somme=0
+effectif=0
+moyenne=0
+
+for mesure in $totalMesure
+do
+	effectif=$(($effectif+1))
+	somme=$(($somme+$mesure))
+done
+
+moyenne=$(($somme/$effectif))
+echo "La moyenne des mesures prises par ce capteur est : "$moyenne
+rm totalMesure

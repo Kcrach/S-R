@@ -1,0 +1,14 @@
+#!/bin/bash
+
+typeValeurCalcule=$2
+capteur=$1
+
+if [ "$typeValeurCalcule" = "moyenne" ]; then 
+	./moyenne $capteur
+elif [ "$typeValeurCalcule" = "max" ]; then
+	./max $capteur
+elif [ "$typeValeurCalcule" = "min" ]; then
+	./min $capteur
+elif [ "$typeValeurCalcule" = "ecartType" ]; then
+	./max $capteur
+fi

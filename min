@@ -1,0 +1,27 @@
+#!/bin/bash
+
+capteur=$1
+
+cd ../SENSOR/$capteur
+listeFileMesure=$(ls)
+
+for mesure in $listeFileMesure
+do
+	if [ "$mesure" != "$capteur.attrib" ]; then
+		#On récupère toute les mesures dans un fichier
+		cat $mesure >> totalMesure	
+	fi
+done
+
+totalMesure=$(cat totalMesure)
+min=100000000
+
+for mesure in $totalMesure
+do
+	if [ "$mesure" -le "$min" ]; then
+		min=$mesure
+	fi
+done
+
+echo "La mesure minimale pour ce capteur est : "$min
+rm totalMesure
