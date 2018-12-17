@@ -1,0 +1,35 @@
+#!/bin/bash
+
+initMinute=$(date +"%M")
+listeCapteur=$(ls DATA)
+
+
+while test 1 = 1
+do
+	minute=$(date +"%M")
+	if [ "$minute" != "$initMinute" ]; then
+		sleep 10
+		date=$(date +"%Y/%m/%d-%T")
+		listeCapteur=$(ls DATA)
+		nbCapteur=0
+		for capteur in $listeCapteur
+		do
+			nbCapteur=$(($nbCapteur+1))
+		done
+		initMinute=$minute
+		random=$(($RANDOM%$nbCapteur+1))
+		mesureRandom=$(echo "$RANDOM/$RANDOM" | bc -l)
+		idCapteurTmp=1	
+		for capteur in $listeCapteur
+		do
+			if [ "$idCapteurTmp" != "$random" ]; then
+				idCapteurTmp=$(($idCapteurTmp+1))
+			else
+				cd DATA
+				echo $date" "$mesureRandom >> $capteur
+				idCapteurTmp=$(($idCapteurTmp+1))
+				cd ..
+			fi
+		done
+	fi
+done
