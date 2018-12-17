@@ -1,0 +1,18 @@
+#!/bin/bash
+
+capteur=$1
+
+cd SENSOR/$capteur
+intervalle=$(awk '{print $18}' $capteur".attrib")
+
+cd ../../DATA
+
+while test 1 = 1
+do
+	sleep $intervalle
+	mesureRandom=$( echo "$RANDOM/$RANDOM" | bc -l)
+	date=$(date +"%Y/%m/%d-%T")
+	mesure=$date" "$mesureRandom
+	echo $mesure >> $capteur
+done
+
