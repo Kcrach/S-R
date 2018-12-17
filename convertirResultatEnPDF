@@ -1,0 +1,46 @@
+#!/bin/bash
+
+capteur=$1
+cd ALGO
+moyenne=$(./moyenne $capteur)
+min=$(./min $capteur)
+max=$(./max $capteur)
+ecartType=$(./ecartType $capteur)
+
+date=$(date +"%Y%m%d")
+fichierTex=resultat"_"$capteur"_"$date
+
+cd ../STAT/$capteur
+touch $fichierTex".tex"
+
+#On insère ce que veut mettre dans le pdf
+
+echo "\documentclass{article}" >> $fichierTex".tex"
+echo "\usepackage{graphicx}" >> $fichierTex".tex"
+
+echo "\begin{document}" >> $fichierTex".tex"
+
+#Statistique
+echo "Moyenne : "$moyenne >> $fichierTex".tex"
+echo "Minimum : "$min >> $fichierTex".tex"
+echo "Maximum : "$max >> $fichierTex".tex"
+echo "Ecart Type : "$ecartType >> $fichierTex".tex"
+
+#Courbe
+ls > tmp
+courbes=$(grep ".png" tmp)
+rm tmp
+
+for courbe in $courbes
+do
+	echo "\begin{figure}" >> $fichierTex".tex"
+	echo "\includegraphics[width=0.8\textwidth]{$courbe}" >> $fichierTex".tex"
+	echo "\end{figure}" >> $fichierTex".tex"
+done
+
+echo "\end{document}" >> $fichierTex".tex"
+
+pdflatex $fichierTex".tex"
+rm $fichierTex".log"
+rm $fichierTex".tex"
+rm $fichierTex".aux"
