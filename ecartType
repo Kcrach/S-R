@@ -1,0 +1,34 @@
+#!/bin/bash
+
+capteur=$1
+
+cd ../SENSOR/$capteur
+listeFileMesure=$(ls)
+
+for mesure in $listeFileMesure
+do
+	if [ "$mesure" != "$capteur.attrib" ]; then
+		#On récupère toute les mesures dans un fichier
+		cat $mesure >> mesures	
+	fi
+done
+
+totalMesure=$(cat mesures)
+rm mesures
+somme=0
+effectif=0
+
+cd ../../ALGO
+./moyenne $capteur > tmp
+moyenne=$(awk '{print $NF}' tmp)
+rm tmp
+
+for mesure in $totalMesure
+do
+	somme=$(($moyenne-$mesure))
+	effectif=$(($effectif+1))
+done
+
+ecartType=$(echo "$somme/$effectif" | bc -l)
+echo "L'écart type des mesures prises par ce capteur est"
+echo "sqrt($ecartType)" | bc -l
